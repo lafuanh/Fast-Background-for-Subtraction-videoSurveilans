@@ -4,9 +4,9 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.28.0+-red)
 ![License](https://img.shields.io/badge/License-Educational/Research-green)
 
-A cool tool to turn basic motion detection into a forensic analysis beast! Get interactive timelines, frame-by-frame breakdowns, heatmaps, and stats. Perfect for security, traffic, or wildlife monitoring! 🕵️‍♂️🚗🦒
-
+A cool tool to turn basic motion detection into a forensic analysis beast! Get interactive timelines, frame-by-frame breakdowns, heatmaps, and stats. Perfect for security, traffic, or wildlife monitoring! 
 Demo: https://fast-background-for-subtraction-videosurveilans.streamlit.app/
+
 ---
 
 ## What's Inside? 
