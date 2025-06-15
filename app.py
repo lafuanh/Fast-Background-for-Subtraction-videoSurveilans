@@ -17,51 +17,474 @@ from typing import Dict, List, Tuple, Optional
 
 # Page configuration
 st.set_page_config(
-    page_title="Visualisasi Jejak Gerakan - Analysis System",
-    page_icon="",
+    page_title="Motion Analysis System",
+    page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for advanced UI
+# Update CSS
 st.markdown("""
 <style>
-.main {
-    padding-top: 1rem;
-}
-.stTitle {
-    color: #1E88E5;
-    font-size: 2.5rem !important;
-    text-align: center;
-    margin-bottom: 1rem;
-}
-.analysis-section {
-    background-color: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid #dee2e6;
-    margin-bottom: 1rem;
-}
-.frame-viewer {
-    border: 2px solid #1E88E5;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-    background-color: #ffffff;
-}
-.motion-stats {
-    background-color: #e3f2fd;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    border-left: 4px solid #1976d2;
-}
-.timeline-container {
-    background-color: #ffffff;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --tertiary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --dark-gradient: linear-gradient(135deg, #0c0c0c 0%, #121C47 50%, #9d174d 100%);
+        --glass-bg: rgba(255, 255, 255, 0.12);
+        --glass-border: rgba(255, 255, 255, 0.18);
+        --text-primary: #1a202c;
+        --text-secondary: #4a5568;
+        --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.1);
+        --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.15);
+        --border-radius: 20px;
+        --border-radius-sm: 12px;
+    }
+    
+    .main {
+        padding-top: 0rem;
+        font-family: 'Poppins', 'Inter';
+        letter-spacing: -0.02em;
+    }
+    
+    .stApp {
+        background: var(--dark-gradient);
+        min-height: 100vh;
+        position: relative;
+    }
+    
+    .stApp::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+    }
+    
+    .main-header {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 3rem 2rem;
+        border-radius: var(--border-radius);
+        margin: 1rem 0 2rem 0;
+        box-shadow: var(--shadow-xl);
+        text-align: center;
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: var(--primary-gradient);
+        animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+    
+    .main-title {
+        color: var(--text-primary);
+        font-size: 3.5rem !important;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.2;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .main-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.25rem;
+        font-weight: 400;
+        margin: 0;
+        opacity: 0.9;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 1.5rem;
+        color: #D6DCF5;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    .metric-card {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 0.5rem 0.2rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+        border: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+    }
+    
+    .metric-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+        text-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    .metric-label {
+        font-size: 0.6rem;
+        opacity: 0.95;
+        font-weight: 400;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+    }
+    
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        transition: all 0.3s ease;
+    }
+    
+    .status-success {
+        background: rgba(72, 187, 120, 0.15);
+        color: #2f855a;
+        border-color: rgba(72, 187, 120, 0.3);
+        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.2);
+    }
+    
+    .status-processing {
+        background: rgba(246, 173, 85, 0.15);
+        color: #c05621;
+        border-color: rgba(246, 173, 85, 0.3);
+        box-shadow: 0 4px 15px rgba(246, 173, 85, 0.2);
+    }
+    
+    .timeline-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-xl);
+        border: 1px solid var(--glass-border);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(from 0deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+        animation: rotate 20s linear infinite;
+        z-index: -1;
+    }
+    
+    @keyframes rotate {
+        100% { transform: rotate(360deg); }
+    }
+    
+    .tab-header {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--glass-border);
+    }
+    
+    .sidebar .stSelectbox > div > div {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: var(--border-radius-sm);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s ease;
+        color: #9d174d;
+    }
+    
+    .sidebar .stSelectbox > div > div:hover {
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .progress-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        padding: 3rem 2rem;
+        border-radius: var(--border-radius);
+        margin: 1.5rem 0;
+        text-align: center;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .video-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .info-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        border-radius: var(--border-radius-sm);
+        text-align: center;
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .info-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    .info-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .section-title {
+        color: #5468BD;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        position: relative;
+        padding-left: 1rem;
+    }
+    
+    .section-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 30px;
+        background: var(--primary-gradient);
+        border-radius: 2px;
+    }
+    
+    .export-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .export-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        padding: 2rem 1.5rem;
+        border-radius: var(--border-radius);
+        text-align: center;
+        border: 2px solid var(--glass-border);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .export-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--primary-gradient);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+    
+    .export-card:hover {
+        border-color: #667eea;
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: var(--shadow-xl);
+        color: white;
+    }
+    
+    .export-card:hover::before {
+        opacity: 0.9;
+    }
+    
+    .export-card h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        transition: color 0.3s ease;
+    }
+    
+    .export-card p {
+        opacity: 0.8;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        transition: opacity 0.3s ease;
+    }
+    
+    .export-card:hover p {
+        opacity: 1;
+    }
+    
+    /* Sidebar Improvements */
+    .sidebar .element-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 1rem;
+        border: 1px solid var(--glass-border);
+    }
+    
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-gradient);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #5a6fcf, #6a5acd);
+    }
+    
+    /* Button Animations */
+    .stButton > button {
+        background: var(--primary-gradient) !important;
+        border: none !important;
+        border-radius: 50px !important;
+        color: white !important;
+        font-weight: 600 !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    /* Metrics */
+    .stMetric {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        padding: 1rem;
+        border-radius: var(--border-radius-sm);
+        border: 1px solid var(--glass-border);
+        transition: all 0.3s ease;
+    }
+    
+    .stMetric:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .main-title {
+            font-size: 2.5rem !important;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+        }
+        
+        .export-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .video-info-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Initialize session state
 if 'processor' not in st.session_state:
@@ -75,9 +498,13 @@ if 'selected_frame' not in st.session_state:
 if 'motion_regions' not in st.session_state:
     st.session_state.motion_regions = {}
 
-# Title and description
-st.title("Visualisasi Jejak Gerakan Analysis System")
-st.markdown("**Visualisasi Jejak Gerakan dengan Fast Background Subtraction dengan Interactive Timeline Analysis**")
+
+# Main header
+st.markdown("""
+<div class="main-header">
+    <h1 class="main-title">Visualisasi Jejak Gerakan Analysis System</h1>
+</div>
+""", unsafe_allow_html=True)
 
 # Sidebar configuration
 with st.sidebar:
@@ -96,91 +523,107 @@ with st.sidebar:
     start_date = st.date_input("Video Start Date", datetime.now().date())
     start_time = st.time_input("Video Start Time", datetime.now().time())
     st.caption("(waktu auto ganti sesuai input video)")
-    # Advanced algorithm parameters
-    with st.expander("🔧 Algorithm Parameters", expanded=True):
-        block_size = st.slider(
-            "Block Size (pixels)",
-            min_value=4,
-            max_value=32,
-            value=8,
-            step=4,
-            help="Smaller blocks = more detail but slower"
-        )
+    # Algorithm parameters 
+    with st.expander("Algorithm Parameters", expanded=True):
+        st.markdown("**Detection Settings**")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            block_size = st.slider(
+                "Block Size",
+                min_value=4, max_value=32, value=8, step=4,
+                help="Smaller blocks = more detail but slower"
+            )
+        with col2:
+            threshold = st.slider(
+                "Sensitivity",
+                min_value=5, max_value=50, value=20,
+                help="Lower = more sensitive detection"
+            )
 
-        threshold = st.slider(
-            "Motion Threshold",
-            min_value=5,
-            max_value=50,
-            value=20,
-            help="Lower = more sensitive detection"
-        )
-
-        learning_rate = st.slider(
-            "Background Learning Rate",
-            min_value=0.001,
-            max_value=0.1,
-            value=0.05,
-            format="%.3f",
-            help=" How quickly the background model adapts"
-        )
-
-        min_contour_area = st.slider(
-            "Minimum Motion Area",
-            min_value=50,
-            max_value=1000,
-            value=200,
-            help="Filter out small movements (pixels²)"
-        )
+        st.markdown("**Learning Parameters**")
+        col1, col2 = st.columns(2)
+        with col1:
+            learning_rate = st.slider(
+                "Learning Rate",
+                min_value=0.001, max_value=0.1, value=0.05, format="%.3f",
+                help="How quickly the background model adapts"
+            )
+        with col2:
+            min_contour_area = st.slider(
+                "Min. Area",
+                min_value=50, max_value=1000, value=200,
+                help="Filter out small movements (pixels²)"
+            )
 
     # Visualization settings
     with st.expander("Visualization Settings"):
-        show_motion_boxes = st.checkbox("Show Motion Bounding Boxes", value=True)
-        show_motion_trails = st.checkbox("Show Motion Trails", value=True)
-        show_heatmap = st.checkbox("Show Motion Heatmap", value=False)
-        trail_decay_rate = st.slider(
-            "Trail Decay Rate",
-            min_value=0.9,
-            max_value=0.99,
-            value=0.95,
-            format="%.2f"
-        )
+        col1, col2 = st.columns(2)
+        with col1:
+            show_motion_boxes = st.checkbox("📦 Motion Boxes", value=True)
+            show_motion_trails = st.checkbox("✨ Motion Trails", value=True)
+        with col2:
+            show_heatmap = st.checkbox("🔥 Heat Map", value=False)
+            trail_decay_rate = st.slider("Trail Decay", 0.9, 0.99, 0.95, format="%.2f")
 
     # Export settings
     st.markdown("---")
-    st.subheader("📤 Export Options")
+    st.markdown("### Export Options")
     export_format = st.selectbox(
         "Export Format",
-        ["JSON", "CSV", "PDF Report", "Video with Overlay"]
+        ["📄 JSON Report", "📊 CSV Data", "📋 PDF Report", "🎬 Video with Overlay"]
     )
 
 # Main content area
 main_container = st.container()
 
 with main_container:
-    # File upload section
-    col1, col2 = st.columns([2, 1])
+     # Video upload section 
+    st.markdown('<div class="glass-card">Visualisasi Intelligent Video Surveillance with Real-time Motion Detection & Analysis</div>', unsafe_allow_html=True)
+
+    col1, col2 = st.columns([3, 1])
 
     with col1:
-        st.markdown('<div class="analysis-section">', unsafe_allow_html=True)
-        st.markdown("### Video Input")
+        st.markdown('<div class="section-title">Video Input</div>', unsafe_allow_html=True)
+        
         uploaded_file = st.file_uploader(
-            "masukan video untuk dianalysis",
+            "Drop your video file here or click to browse",
             type=['mp4', 'avi', 'mov', 'mkv'],
-            help="Maximum recommended size: 500MB"
+            help="Maximum recommended size: 500MB",
+            label_visibility="collapsed"
         )
-        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="motion-stats">', unsafe_allow_html=True)
-        st.markdown("### Quick Stats")
+        st.markdown('<div class="section-title">📊 Quick Stats</div>', unsafe_allow_html=True)
+        
         if st.session_state.analysis_data:
             stats = st.session_state.analysis_data.get('statistics', {})
-            st.metric("Motion Events", stats.get('total_events', 0))
-            st.metric("Peak Intensity", f"{stats.get('max_intensity', 0):.1f}%")
-            st.metric("Coverage", f"{stats.get('motion_coverage', 0):.1f}%")
+            
+            # Custom metric cards
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-value">{stats.get('total_events', 0)}</div>
+                <div class="metric-label">Motion Events</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown(f"""
+            <div class="metric-card" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                <div class="metric-value">{stats.get('max_intensity', 0):.1f}%</div>
+                <div class="metric-label">Peak Intensity</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown(f"""
+            <div class="metric-card" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                <div class="metric-value">{stats.get('motion_coverage', 0):.1f}%</div>
+                <div class="metric-label">Coverage</div>
+            </div>
+            """, unsafe_allow_html=True)
         else:
-            st.info("Upload a video to see statistics")
-        st.markdown('</div>', unsafe_allow_html=True)
+            st.info("Upload a video to see live statistics")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Process video when uploaded
 if uploaded_file is not None:
@@ -220,7 +663,11 @@ if uploaded_file is not None:
     # Process button with different analysis modes
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        if st.button("🚀 Start Analysis", type="primary", use_container_width=True):
+        if st.button("Start Analysis", type="primary", use_container_width=True):
+            # Progress container
+            #st.markdown('<div class="progress-container">', unsafe_allow_html=True)
+            st.markdown("### 🔄 Processing Video...")
+
             # Initialize processor with advanced parameters
             processor = FBSProcessor(
                 block_size=block_size,
@@ -235,17 +682,19 @@ if uploaded_file is not None:
             # Progress tracking
             progress_bar = st.progress(0)
             status_text = st.empty()
+            ta_text = st.empty()
 
             # Process video
             cap = cv2.VideoCapture(tmp_file_path)
             frame_count = 0
+            start_time_process = datetime.now()
 
             # Store frames for later retrieval
             key_frames = {}
             motion_data = []
 
-            status_text.text("Initializing advanced motion detection...")
-
+            status_text.markdown('<div class="status-indicator status-processing">Initializing motion detection...</div>', unsafe_allow_html=True)
+            
             while cap.isOpened():
                 ret, frame = cap.read()
                 if not ret:
@@ -271,8 +720,14 @@ if uploaded_file is not None:
                 # Update progress
                 progress = min(frame_count / total_frames, 1.0)
                 progress_bar.progress(progress)
-                status_text.text(
-                    f"Analyzing frame {frame_count}/{total_frames} - Detected {len(motion_data)} motion events")
+                
+                # Calculate ETA
+                if frame_count > 0:
+                    elapsed = (datetime.now() - start_time_process).total_seconds()
+                    eta = (elapsed / frame_count) * (total_frames - frame_count)
+                    ta_text.markdown(f"⏱ {eta:.0f}s | Motion events detected: {len(motion_data)}")
+
+                    status_text.markdown(f'<div class="status-indicator status-processing"> Frame {frame_count:,}/{total_frames:,} ({progress*100:.1f}%)</div>', unsafe_allow_html=True)
 
                 frame_count += 1
 
@@ -295,14 +750,17 @@ if uploaded_file is not None:
                 }
             }
 
-            # Clear progress
+            # Success message
             progress_bar.empty()
-            status_text.empty()
-            st.success("Analysis complete!!!")
+            status_text.markdown('<div class="status-indicator status-success">✅ Analysis completed successfully!</div>', unsafe_allow_html=True)
+            ta_text.empty()
+            st.balloons()
+            st.markdown('</div>', unsafe_allow_html=True)
             st.rerun()
 
 # Display analysis results if available
 if st.session_state.analysis_data:
+    st.markdown('<div class="timeline-container">', unsafe_allow_html=True)
     # Create tabs for different views
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Timeline Analysis",
@@ -313,7 +771,7 @@ if st.session_state.analysis_data:
     ])
 
     with tab1:
-        st.markdown("### Interactive Motion Timeline")
+        st.markdown('<div class="section-title">📈 Interactive Motion Timeline</div>', unsafe_allow_html=True)
 
         # Prepare timeline data
         motion_timeline = st.session_state.analysis_data['motion_timeline']
@@ -339,7 +797,8 @@ if st.session_state.analysis_data:
                     name='Motion Intensity',
                     line=dict(color='#1976d2', width=2),
                     marker=dict(size=6),
-                    hovertemplate='<b>Time:</b> %{x|%H:%M:%S}<br><b>Intensity:</b> %{y:.1f}%<extra></extra>'
+                    hovertemplate='<b>Time:</b> %{x|%H:%M:%S}<br><b>Intensity:</b> %{y:.1f}%<extra></extra>',
+                    fill='tonexty'
                 ),
                 row=1, col=1
             )
@@ -358,7 +817,7 @@ if st.session_state.analysis_data:
                 go.Histogram(
                     x=df['timestamp'],
                     name='Event Frequency',
-                    marker_color='#42a5f5',
+                    marker_color='#155255',
                     nbinsx=50
                 ),
                 row=2, col=1
@@ -368,7 +827,8 @@ if st.session_state.analysis_data:
                 height=600,
                 showlegend=True,
                 hovermode='x unified',
-                xaxis_rangeslider_visible=False
+                xaxis_rangeslider_visible=False,
+                font=dict(family="Inter, poppins")
             )
 
             fig.update_xaxes(title_text="Time", row=2, col=1)
@@ -380,7 +840,7 @@ if st.session_state.analysis_data:
 
             # Frame selection based on timeline
             st.markdown("### Select Time Range for Detailed Analysis")
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns([1, 1, 1])
 
             with col1:
                 start_time_select = st.time_input(
@@ -394,15 +854,15 @@ if st.session_state.analysis_data:
                     value=df['timestamp'].iloc[-1].time() if len(df) > 0 else datetime.now().time()
                 )
 
-            if st.button("Analyze Selected Range"):
-                # Filter data for selected range
-                selected_data = df[
-                    (df['timestamp'].dt.time >= start_time_select) &
-                    (df['timestamp'].dt.time <= end_time_select)
+            with col3:
+                if st.button(" Analyze Range", use_container_width=True):
+                    selected_data = df[
+                        (df['timestamp'].dt.time >= start_time_select) &
+                        (df['timestamp'].dt.time <= end_time_select)
                     ]
-
-                if not selected_data.empty:
-                    st.info(f"Found {len(selected_data)} motion events in selected range")
+                    
+                    if not selected_data.empty:
+                        st.success(f" Found {len(selected_data)} motion events in selected range")
 
                     # Show detailed stats for selected range
                     col1, col2, col3, col4 = st.columns(4)
@@ -417,7 +877,7 @@ if st.session_state.analysis_data:
                                   f"{selected_data['seconds'].iloc[-1] - selected_data['seconds'].iloc[0]:.1f}s")
 
     with tab2:
-        st.markdown("### Frame-by-Frame Analysis")
+        st.markdown('<div class="section-title"> Frame-by-Frame Analysis</div>', unsafe_allow_html=True)
 
         motion_data = st.session_state.analysis_data['motion_data']
 
@@ -443,7 +903,7 @@ if st.session_state.analysis_data:
 
                     with col1:
                         st.markdown("#### Original Frame")
-                        st.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), use_column_width=True)
+                        st.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), use_container_width=True)
 
                     with col2:
                         st.markdown("#### Motion Detection Result")
@@ -484,7 +944,7 @@ if st.session_state.analysis_data:
                             st.image(cv2.cvtColor(vector_viz, cv2.COLOR_BGR2RGB), use_column_width=True)
 
     with tab3:
-        st.markdown("### Motion Heatmap Analysis")
+        st.markdown('<div class="section-title"> Motion Heatmap Analysis</div>', unsafe_allow_html=True)
 
         heatmap = st.session_state.analysis_data.get('heatmap')
 
@@ -555,7 +1015,7 @@ if st.session_state.analysis_data:
                                      f"Size: {region['size']}px², Peak Activity: {region['peak_activity']:.1f}%")
 
     with tab4:
-        st.markdown("### Statistical Analysis")
+        st.markdown('<div class="section-title">Statistical Analysis</div>', unsafe_allow_html=True)
 
         stats = st.session_state.analysis_data['statistics']
 
@@ -645,7 +1105,27 @@ if st.session_state.analysis_data:
             st.plotly_chart(fig_hourly, use_container_width=True)
 
     with tab5:
-        st.markdown("### Export Analysis Results")
+        st.markdown('<div class="section-title">📤 Export Analysis Results</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="export-grid">
+            <div class="export-card">
+                <h3>📄 JSON Report</h3>
+                <p>Detailed analysis data in JSON format</p>
+            </div>
+            <div class="export-card">
+                <h3>📊 CSV Data</h3>
+                <p>Motion events in spreadsheet format</p>
+            </div>
+            <div class="export-card">
+                <h3>📋 PDF Report</h3>
+                <p>Professional analysis report</p>
+            </div>
+            <div class="export-card">
+                <h3>🎬 Analysis Video</h3>
+                <p>Video with motion overlay</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Prepare export data
         export_data = {
@@ -710,10 +1190,11 @@ if st.session_state.analysis_data:
                             )
                         os.remove(output_path)
 
-# Footer
+# footer
 st.markdown("---")
-st.markdown(
-    "**Advanced Motion Analysis System** | "
-    "Powered by FBS-ABL Algorithm | "
-    f"Version 2.0 | Last updated: {datetime.now().strftime('%Y-%m-%d')}"
-)
+st.markdown(f"""
+<div style="text-align: center; padding: 2rem; background: rgba(255, 255, 255, 0.1); border-radius: 15px; margin-top: 2rem; color: #D6DCF5; font-family: 'Inter', sans-serif;">
+    <p> Advanced Motion Analysis System</p>
+    <p>Powered by FBS-ABL Algorithm | Version 3.1 | Last updated: {datetime.now().strftime('%Y-%m-%d')}</p>
+</div>
+""", unsafe_allow_html=True)
