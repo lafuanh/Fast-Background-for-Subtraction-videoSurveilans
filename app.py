@@ -916,7 +916,7 @@ if st.session_state.analysis_data:
                                 show_boxes=show_motion_boxes,
                                 show_trails=show_motion_trails
                             )
-                            st.image(cv2.cvtColor(motion_viz, cv2.COLOR_BGR2RGB), use_column_width=True)
+                            st.image(cv2.cvtColor(motion_viz, cv2.COLOR_BGR2RGB), use_container_width=True)
 
                     # Show additional analysis
                     st.markdown("#### Motion Regions Analysis")
@@ -941,7 +941,7 @@ if st.session_state.analysis_data:
                                 frame,
                                 frame_number
                             )
-                            st.image(cv2.cvtColor(vector_viz, cv2.COLOR_BGR2RGB), use_column_width=True)
+                            st.image(cv2.cvtColor(vector_viz, cv2.COLOR_BGR2RGB), use_container_width=True)
 
     with tab3:
         st.markdown('<div class="section-title"> Motion Heatmap Analysis</div>', unsafe_allow_html=True)
@@ -1195,6 +1195,6 @@ st.markdown("---")
 st.markdown(f"""
 <div style="text-align: center; padding: 2rem; background: rgba(255, 255, 255, 0.1); border-radius: 15px; margin-top: 2rem; color: #D6DCF5; font-family: 'Inter', sans-serif;">
     <p> Advanced Motion Analysis System</p>
-    <p>Powered by FBS-ABL Algorithm | Version 3.1 | Last updated: {datetime.now().strftime('%Y-%m-%d')}</p>
+    <p>Powered by FBS-ABL Algorithm | Version 3.2 | Last updated: {datetime.now().strftime('%Y-%m-%d')}</p>
 </div>
 """, unsafe_allow_html=True)
