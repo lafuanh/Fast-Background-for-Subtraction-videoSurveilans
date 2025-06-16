@@ -1090,7 +1090,7 @@ if st.session_state.analysis_data:
                 y=hourly_stats[('intensity', 'mean')],
                 name='Avg Intensity',
                 yaxis='y2',
-                line=dict(color='#f44336', width=3)
+                line=dict(color="#b0281f", width=3)
             ))
 
             fig_hourly.update_layout(
